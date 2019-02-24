@@ -139,11 +139,14 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
 
     @Override
     void init(Channel channel) throws Exception {
+        //拿到设置的option
         final Map<ChannelOption<?>, Object> options = options0();
         synchronized (options) {
+            //设置option
             setChannelOptions(channel, options, logger);
         }
 
+        //拿到设置的属性
         final Map<AttributeKey<?>, Object> attrs = attrs0();
         synchronized (attrs) {
             for (Entry<AttributeKey<?>, Object> e: attrs.entrySet()) {
@@ -153,6 +156,7 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
             }
         }
 
+        //获取管道对象
         ChannelPipeline p = channel.pipeline();
 
         final EventLoopGroup currentChildGroup = childGroup;
@@ -167,10 +171,12 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
         }
 
         p.addLast(new ChannelInitializer<Channel>() {
+            //初始化通道
             @Override
             public void initChannel(final Channel ch) throws Exception {
                 final ChannelPipeline pipeline = ch.pipeline();
                 ChannelHandler handler = config.handler();
+                //设置handler
                 if (handler != null) {
                     pipeline.addLast(handler);
                 }

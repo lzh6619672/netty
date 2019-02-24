@@ -275,7 +275,9 @@ abstract class AbstractEpollChannel extends AbstractChannel implements UnixChann
 
     @Override
     protected void doRegister() throws Exception {
+        // 以防前一个EventLoop突然关闭，或旧的EventLoop上的事件仍然未决
         // Just in case the previous EventLoop was shutdown abruptly, or an event is still pending on the old EventLoop
+        // 确保重置epollInReadyRunnablePending变量，以便我们能够执行Runnable在新的事件循环中
         // make sure the epollInReadyRunnablePending variable is reset so we will be able to execute the Runnable on the
         // new EventLoop.
         epollInReadyRunnablePending = false;
