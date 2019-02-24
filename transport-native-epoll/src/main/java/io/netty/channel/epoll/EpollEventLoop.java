@@ -228,11 +228,16 @@ class EpollEventLoop extends SingleThreadEventLoop {
     }
 
     private int epollWait(boolean oldWakeup) throws IOException {
+        // 如果wakeup的值为1时提交了新的任务，那么不会触发wakeup事件
         // If a task was submitted when wakenUp value was 1, the task didn't get a chance to produce wakeup event.
+        // 所以我们需要再一次的检查
         // So we need to check task queue again before calling epoll_wait. If we don't, the task might be pended
         // until epoll_wait was timed out. It might be pended until idle timeout if IdleStateHandler existed
         // in pipeline.
+
+        // 如果已经唤醒，并且有任务的时候
         if (oldWakeup && hasTasks()) {
+            // 返回等待
             return epollWaitNow();
         }
 
@@ -261,8 +266,10 @@ class EpollEventLoop extends SingleThreadEventLoop {
 
     @Override
     protected void run() {
+        // 自旋
         for (;;) {
             try {
+                // 计算策略值
                 int strategy = selectStrategy.calculateStrategy(selectNowSupplier, hasTasks());
                 switch (strategy) {
                     case SelectStrategy.CONTINUE:

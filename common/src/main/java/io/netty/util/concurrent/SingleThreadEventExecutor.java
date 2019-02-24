@@ -755,6 +755,7 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
         boolean inEventLoop = inEventLoop();
         addTask(task);
         if (!inEventLoop) {
+            // 开启线程
             startThread();
             if (isShutdown()) {
                 boolean reject = false;
@@ -859,9 +860,12 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
     private static final long SCHEDULE_PURGE_INTERVAL = TimeUnit.SECONDS.toNanos(1);
 
     private void startThread() {
+        // 如果线程没有开始
         if (state == ST_NOT_STARTED) {
+            // 状态更新对象设置状态
             if (STATE_UPDATER.compareAndSet(this, ST_NOT_STARTED, ST_STARTED)) {
                 try {
+                    // 开启线程
                     doStartThread();
                 } catch (Throwable cause) {
                     STATE_UPDATER.set(this, ST_NOT_STARTED);
@@ -902,6 +906,8 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
                 boolean success = false;
                 updateLastExecutionTime();
                 try {
+
+                    // 线程执行者运行
                     SingleThreadEventExecutor.this.run();
                     success = true;
                 } catch (Throwable t) {

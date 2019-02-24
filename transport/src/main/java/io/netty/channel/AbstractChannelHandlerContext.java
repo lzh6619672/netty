@@ -652,6 +652,10 @@ abstract class AbstractChannelHandlerContext extends DefaultAttributeMap
         }
     }
 
+    /**
+     * 读消息
+     * @return
+     */
     @Override
     public ChannelHandlerContext read() {
         final AbstractChannelHandlerContext next = findContextOutbound();
@@ -663,6 +667,7 @@ abstract class AbstractChannelHandlerContext extends DefaultAttributeMap
             if (tasks == null) {
                 next.invokeTasks = tasks = new Tasks(next);
             }
+            // 执行读的任务
             executor.execute(tasks.invokeReadTask);
         }
 
